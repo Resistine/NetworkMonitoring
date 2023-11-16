@@ -1,9 +1,0 @@
-alert tcp $EXTERNAL_NET 80 -> $HOME_NET any
-(
-    msg:"Attack attempt!";
-    flow:to_client,established;
-    file_data;
-    content:"jpg",fast_pattern,nocase;
-    service:http;
-    sid:1;
-)
