@@ -188,7 +188,26 @@ void AppIdListenerEventHandler::print_json_message(JsonStream& js, const char* c
     ts_print((const struct timeval*)&p->pkth->ts, timebuf, true);
     js.open();
     js.put("session_num", api.get_session_id());
-    js.put("pkt_time", timebuf);
+    
+    const char* originalTimestamp = timebuf;
+    char formattedTimestamp[50];
+
+    // Převod původního časového řetězce na strukturu tm
+    std::tm tm_time = {};
+    std::istringstream ss(originalTimestamp);
+    ss >> std::get_time(&tm_time, "%Y-%m-%d %H:%M:%S");
+
+    // Přeformátování na nový formát
+    std::ostringstream formattedTime;
+    formattedTime << std::put_time(&tm_time, "%Y-%m-%dT%H:%M:%S.") << "000Z"; // Přidání milisekund a UTC offsetu
+
+    // Zkopírování zpět do char bufferu
+    std::strcpy(formattedTimestamp, formattedTime.str().c_str());
+
+
+
+
+    js.put("timestamp", formattedTimestamp);
     js.put("pkt_num", packet_num);
     js.put("client_pkts", flow.flowstats.client_pkts);
     js.put("server_pkts", flow.flowstats.server_pkts);
